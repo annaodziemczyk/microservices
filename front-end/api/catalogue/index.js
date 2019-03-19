@@ -9,23 +9,8 @@
     middleware = require('express-formidable');
 
   var fs = require('fs');
-  //    , bodyParser = require('body-parser'),
-  //  qs = require('querystring');
-
- // app.use( bodyParser.json() );       // to support JSON-encoded bodies
- // app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
- //   extended: true
-//  }));
 
   app.use(middleware());
-
-  app.get("/catalogue/images*", function (req, res, next) {
-    var url = endpoints.catalogueUrl + req.url.toString();
-    console.log("images url "+url);
-    request.get(url)
-        .on('error', function(e) { next(e); })
-        .pipe(res);
-  });
 
   app.post("/newProduct", function(req,res){
     console.log(req.fields);
@@ -44,9 +29,9 @@
   app.get("/getProducts", function (req, res, next) {
     var x = endpoints.catalogueUrl+"/getProducts" ;//+ req.url.toString();
     console.log("getProducts "+x);
-    /*helpers.simpleHttpRequest(x
-     , res, next);*/
-    request.get(x, function(error, response, body) {
+    helpers.simpleHttpRequest(x
+     , res, next);
+    /*request.get(x, function(error, response, body) {
       if (error) return next(error);
 
       var products = JSON.parse(body);
@@ -64,7 +49,7 @@
 
       }
       helpers.respondSuccessBody(res, body);
-    }.bind({res: res}));
+    }.bind({res: res}));*/
 
   });
 

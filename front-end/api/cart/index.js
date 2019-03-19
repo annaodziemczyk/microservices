@@ -114,7 +114,6 @@
           request(options,
               function (error, response, body) {
             console.log(body);
-                console.log(" product id "+body.productID);
             callback(error, body);
           });
         },

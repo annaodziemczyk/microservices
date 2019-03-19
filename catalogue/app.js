@@ -5,6 +5,7 @@ var p = require('path');
 var qs = require('querystring');
 var mysql = require('mysql');
 var multiparty = require('multiparty');
+var static = require('node-static');
 const productImgDir = './catalogue/images';
 var root = __dirname;
 var headers = [
@@ -21,7 +22,25 @@ var db = mysql.createConnection({
 var cart = [];
 var theuser=null;
 var theuserid =null;
+var file = new static.Server(productImgDir, { cache: 3600 });
+
 var server = http.createServer(function (request, response) {
+
+    request.addListener('end', function () {
+        if(request.url.indexOf(".jpeg")>0 || request.url.indexOf(".png")>0){
+            file.serve(request, response, function (err, result) {
+                if (err) { // There was an error serving the file
+                    console.error("Error serving " + request.url + " - " + err.message);
+
+                    // Respond to the client
+                    response.writeHead(err.status, err.headers);
+                    response.end();
+                }
+            });
+        }
+
+    }).resume();
+
     var path = url.parse(request.url).pathname;
     var url1 = url.parse(request.url);
     if (request.method == 'POST') {
@@ -47,8 +66,8 @@ var server = http.createServer(function (request, response) {
                     var query = "INSERT INTO products (name, quantity, price, image) VALUES ("
                         + [
                             "'" + fields["name"][0] + "'",
-                            fields["productPrice"][0],
                             fields["productQuantity"][0],
+                            fields["productPrice"][0],
                             "'" + filename  + "'"
                         ].join(", ") + ")";
                     db.query(
@@ -68,33 +87,6 @@ var server = http.createServer(function (request, response) {
     }
     else {
         switch (path) {
-
-            case "/getProductImage"    :
-                console.log("getProductImage");
-                var body="";
-                request.on('data', function (data) {
-                    body += data;
-                });
-
-                request.on('end', function () {
-                    var product = JSON.parse(body);
-                    response.writeHead(200, {
-                        'Content-Type': 'text/html',
-                        'Access-Control-Allow-Origin': '*'
-                    });
-                    console.log(JSON.stringify(product, null, 2));
-                    var query = "SELECT * FROM products where productID="+
-                        product.id;
-
-
-                    response.end(JSON.stringify(rows[0]));
-
-                });
-
-
-
-                break;
-
             case "/getProducts"    :
                 console.log("getProducts");
                 response.writeHead(200, {
