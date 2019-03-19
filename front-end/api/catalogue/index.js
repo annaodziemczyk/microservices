@@ -1,0 +1,76 @@
+(function (){
+  'use strict';
+
+  var express   = require("express")
+    , request   = require("request")
+    , endpoints = require("../endpoints")
+    , helpers   = require("../../helpers")
+    , app       = express(),
+    middleware = require('express-formidable');
+
+  var fs = require('fs');
+  //    , bodyParser = require('body-parser'),
+  //  qs = require('querystring');
+
+ // app.use( bodyParser.json() );       // to support JSON-encoded bodies
+ // app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+ //   extended: true
+//  }));
+
+  app.use(middleware());
+
+  app.get("/catalogue/images*", function (req, res, next) {
+    var url = endpoints.catalogueUrl + req.url.toString();
+    console.log("images url "+url);
+    request.get(url)
+        .on('error', function(e) { next(e); })
+        .pipe(res);
+  });
+
+  app.post("/newProduct", function(req,res){
+    console.log(req.fields);
+    req.fields["file"] = fs.createReadStream(req.files["productImage"].path);
+
+    request.post({
+      url:     endpoints.newProductUrl,
+      encoding: 'binary',
+      formData: req.fields,
+    }, function(error, response, body){
+      console.log(body);
+    });
+
+  });
+
+  app.get("/getProducts", function (req, res, next) {
+    var x = endpoints.catalogueUrl+"/getProducts" ;//+ req.url.toString();
+    console.log("getProducts "+x);
+    /*helpers.simpleHttpRequest(x
+     , res, next);*/
+    request.get(x, function(error, response, body) {
+      if (error) return next(error);
+
+      var products = JSON.parse(body);
+      for (var i = 0; i < products.length; i++) {
+        var path = 'public/images/' + products[i].image;
+
+        try {
+          if (!fs.existsSync(path)) {
+            request('http://localhost:3002/catalogue/images/' + products[i].image)
+                .pipe(fs.createWriteStream('public/images/' + products[i].image));
+          }
+        } catch(err) {
+          console.error(err)
+        }
+
+      }
+      helpers.respondSuccessBody(res, body);
+    }.bind({res: res}));
+
+  });
+
+  app.get("/tags", function(req, res, next) {
+    helpers.simpleHttpRequest(endpoints.tagsUrl, res, next);
+  });
+
+  module.exports = app;
+}());
