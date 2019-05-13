@@ -7,3 +7,6 @@
 [submodule "cart"]
 	path = cart
 	url = https://github.com/annaodziemczyk/microservices-cart
+[submodule "users"]
+	path = users
+	url = https://github.com/annaodziemczyk/microservices-users
