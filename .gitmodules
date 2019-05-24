@@ -16,3 +16,6 @@
 [submodule "customer"]
 	path = customer
 	url = https://github.com/annaodziemczyk/microservices-customers.git
+[submodule "angular-frontend"]
+	path = angular-frontend
+	url = https://github.com/annaodziemczyk/microservices-mean.git
