@@ -10,3 +10,9 @@
 [submodule "users"]
 	path = users
 	url = https://github.com/annaodziemczyk/microservices-users
+[submodule "customers"]
+	path = customers
+	url = https://github.com/annaodziemczyk/microservices-customers.git
+[submodule "customer"]
+	path = customer
+	url = https://github.com/annaodziemczyk/microservices-customers.git
